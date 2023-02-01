@@ -8,6 +8,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+.conda/
 build/
 develop-eggs/
 dist/
