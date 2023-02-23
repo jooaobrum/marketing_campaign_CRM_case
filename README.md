@@ -6,7 +6,7 @@ iFood is the lead food delivery app in Brazil, present in over a thousand cities
 Keeping a high customer engagement is key for growing and consolidating the company’s
 position as the market leader.
 
-![ifood](https://www.cora.com.br/blog/wp-content/uploads/elementor/thumbs/Imagem-Ifood-red-1-pqpti8fbo93e9dbvljmi9hm48xg4073mrqaq7898cg.png)
+![ifood](https://www.cora.com.br/blog/wp-content/uploads/2021/03/Imagem-Ifood-red-1.png)
 
 Data Analysts working within the data team are constantly challenged to provide insights and
 value to the company through open scope projects. This case intends to simulate that.
@@ -60,11 +60,11 @@ Since the business case is composed by 3 parts, I will split the problem in 3 di
 
 
 ### Analysis & Insights Storytelling
-[PT-BR] Alavancando Insights de Campanhas de Marketing - Parte 1
-https://medium.com/@indatawetrust.idwt/alavancando-insights-de-campanhas-de-marketing-com-an%C3%A1lise-explorat%C3%B3ria-e-shap-explainable-ai-207ae7e7b97c
+[[PT-BR] Alavancando Insights de Campanhas de Marketing - Parte 1](https://medium.com/@indatawetrust.idwt/alavancando-insights-de-campanhas-de-marketing-com-an%C3%A1lise-explorat%C3%B3ria-e-shap-explainable-ai-207ae7e7b97c)
 
-[EN-US] Leveraging Marketing Campaign Insights — Part 1
-https://medium.com/@indatawetrust.idwt/en-us-leveraging-marketing-campaigns-insights-with-exploratory-analysis-and-shap-explainable-942989a49f41
+
+[[EN-US] Leveraging Marketing Campaign Insights — Part 1] (https://medium.com/@indatawetrust.idwt/en-us-leveraging-marketing-campaigns-insights-with-exploratory-analysis-and-shap-explainable-942989a49f41)
+
 
 
 ### Authors
