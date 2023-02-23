@@ -6,7 +6,7 @@ iFood is the lead food delivery app in Brazil, present in over a thousand cities
 Keeping a high customer engagement is key for growing and consolidating the company’s
 position as the market leader.
 
-![ifood](https://github.com/jooaobrum/marketing_campaign_ifood_case/blob/main/ifood-logo.jpg?raw=true)
+![ifood](https://github.com/jooaobrum/marketing_campaign_ifood_case/blob/main/notebooks/images/ifood-logo.jpg)
 
 Data Analysts working within the data team are constantly challenged to provide insights and
 value to the company through open scope projects. This case intends to simulate that.
