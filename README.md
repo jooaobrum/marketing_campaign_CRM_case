@@ -66,6 +66,10 @@ Since the business case is composed by 4 parts, I will split the problem in 3 di
 [[EN-US] Leveraging Marketing Campaign Insights — Part 1](https://medium.com/@indatawetrust.idwt/en-us-leveraging-marketing-campaigns-insights-with-exploratory-analysis-and-shap-explainable-942989a49f41)
 
 
+### Clustering Storytelling
+[[PT-BR] Aprimorando a Estratégia de Marketing com Ciência de Dados: Priorizando Clientes e Entregando o que Eles Querem Comprar — Parte 2](https://medium.com/@indatawetrust.idwt/pt-br-aprimorando-a-estrat%C3%A9gia-de-marketing-com-ci%C3%AAncia-de-dados-priorizando-clientes-e-1bf6bf654a10)
+
+[[EN-US] Enhancing Marketing Strategy with Data Science: Prioritizing Customers and Delivering What They Want to Buy — Part 2](https://medium.com/@indatawetrust.idwt/enhancing-marketing-strategy-with-data-science-prioritizing-customers-and-delivering-what-they-b4cb32670a0f)
 
 ### Authors
  [@jooaobrum](https://linkedin.com/in/jooaobrum)
