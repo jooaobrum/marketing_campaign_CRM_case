@@ -1,5 +1,5 @@
 # Ifood CRM Analytics
-This is a repository used for the Data Advanced Analytics business case of iFood. Also, I'll be using it to develop some interesting ideas about this project, from exploration phase (notebooks) to an application for marketing team (data product).
+This is a repository used for the Data Advanced Analytics business case of iFood (public - spontaneous candidature). Also, I'll be using it to develop some interesting ideas about this project, from exploration phase (notebooks) to an application for marketing team (data product).
 
 ### About the Company
 iFood is the lead food delivery app in Brazil, present in over a thousand cities.
