@@ -9,9 +9,13 @@ __pycache__/
 # Logger
 *.log
 
+# Artifacts
+artifacts/
+
 # Distribution / packaging
 .Python
 .conda/
+venv/
 build/
 develop-eggs/
 dist/
