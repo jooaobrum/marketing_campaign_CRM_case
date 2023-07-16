@@ -1,6 +1,6 @@
 import os
 import sys
-
+import datetime
 from utils import CustomException
 from logger import logging
 from etl import transform
@@ -159,7 +159,8 @@ class ModelTrainer:
                 "features":features,
                 "train_acc_score":train_acc_score,
                 "test_acc_score":test_acc_score,
-                "path": self.model_trainer_config.cluster_pipeline_filepath
+                "path": self.model_trainer_config.cluster_pipeline_filepath,
+                "date": datetime.datetime.now()
 
             })
 
@@ -171,7 +172,3 @@ class ModelTrainer:
             raise CustomException(e, sys)
         
 
-if __name__ == '__main__':
-    obj = ModelTrainer()
-
-    obj.initiate_model_training()
