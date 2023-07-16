@@ -10,6 +10,9 @@ from dataclasses import dataclass
 
 @dataclass
 class DataIngestionCfg():
+    if not os.path.exists('../../artifacts'):
+        # Create the folder if it doesn't exist
+        os.makedirs('../../artifacts')
     raw_data_path: str = os.path.join('../../artifacts', 'data.csv')
 
 class DataIngestion():

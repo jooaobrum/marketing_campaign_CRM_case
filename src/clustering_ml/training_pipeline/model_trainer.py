@@ -39,6 +39,11 @@ def save_clustering_info(df, categories, cluster_id, image_label):
 
 @dataclass
 class ModelTrainingCfg:
+
+    if not os.path.exists('../../models'):
+        # Create the folder if it doesn't exist
+        os.makedirs('../../models')
+
     cluster_infos_filepath = "../../artifacts/"
     cluster_pipeline_filepath = os.path.join("../../models", "cluster_pipeline.pkl")
     processed_data_filepath = os.path.join("../../artifacts", "processed_data.csv")
