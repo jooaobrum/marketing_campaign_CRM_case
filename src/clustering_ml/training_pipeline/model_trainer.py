@@ -5,6 +5,7 @@ from utils import CustomException
 from logger import logging
 from etl import transform
 import pandas as pd
+import json
 from sklearn.cluster import KMeans
 from sklearn.model_selection import train_test_split
 from feature_engine import imputation
@@ -165,11 +166,14 @@ class ModelTrainer:
                 "train_acc_score":train_acc_score,
                 "test_acc_score":test_acc_score,
                 "path": self.model_trainer_config.cluster_pipeline_filepath,
-                "date": datetime.datetime.now()
+                "date": datetime.datetime.now().strftime("%Y-%m-%d %Hh-%Mm-%Ss")
 
             })
 
             model_info.to_pickle(self.model_trainer_config.cluster_pipeline_filepath)
+            
+            model_info_json = model_info.drop('model')
+            model_info_json.to_json(os.path.splitext(self.model_trainer_config.cluster_pipeline_filepath)[0] + ".json", indent = 4)
             logging.info("Model saved...")
 
             return model_info
