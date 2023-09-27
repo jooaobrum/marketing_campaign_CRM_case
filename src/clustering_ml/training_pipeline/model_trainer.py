@@ -1,3 +1,4 @@
+
 import os
 import sys
 import datetime
@@ -9,6 +10,7 @@ import json
 from sklearn.cluster import KMeans
 from sklearn.model_selection import train_test_split
 from feature_engine import imputation
+from sklearn.impute import SimpleImputer
 from feature_engine import encoding
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.ensemble import RandomForestClassifier
@@ -41,13 +43,13 @@ def save_clustering_info(df, categories, cluster_id, image_label):
 @dataclass
 class ModelTrainingCfg:
 
-    if not os.path.exists('../../models'):
+    if not os.path.exists('../../../models'):
         # Create the folder if it doesn't exist
-        os.makedirs('../../models')
+        os.makedirs('../../../models')
 
     cluster_infos_filepath = "../../artifacts/"
-    cluster_pipeline_filepath = os.path.join("../../models", "cluster_pipeline.pkl")
-    processed_data_filepath = os.path.join("../../artifacts", "processed_data.csv")
+    cluster_pipeline_filepath = os.path.join("../../../models", "cluster_pipeline.pkl")
+    processed_data_filepath = os.path.join("../../../artifacts", "processed_data.csv")
 
 class ModelTrainer:
     def __init__(self):
@@ -57,8 +59,10 @@ class ModelTrainer:
         logging.info("Model Clustering/Training Started...")
         try:
 
+            # %%
             df = pd.read_csv(self.model_trainer_config.processed_data_filepath)
             logging.info("Processed data read...")
+
 
             # Scaling for clustering
             mms = MinMaxScaler()
@@ -90,6 +94,7 @@ class ModelTrainer:
             save_clustering_info(df, categories_channel, "cluster_id_channel", self.model_trainer_config.cluster_infos_filepath + "cluster_id_channel")
 
 
+
             # Clustetering RFM
             categories_rfm = ['recency', 'total_purchases', 'amount_spent']
             kmeans_rfm = KMeans(n_clusters=4, random_state=0, init='k-means++').fit(df_scaled[categories_rfm])
@@ -109,7 +114,7 @@ class ModelTrainer:
             # Training a random forest to learn the clusters
             
             # Define the features of the model
-            features = [  'education', 'marital_status', 'income', 'kidhome',
+            features = ['education', 'marital_status', 'income', 'kidhome',
                         'teenhome', 'recency', 'percentage_spent_wines', 'percentage_spent_fruits',
                         'percentage_spent_meat', 'percentage_spent_fish', 'percentage_spent_sweet',
                         'percentage_spent_gold', 'percentage_type_deals', 'percentage_type_web',
@@ -125,12 +130,8 @@ class ModelTrainer:
             logging.info("Train test split done...")
 
             # One Hot Encoding
-            ohe_features = 'marital_status'
+            ohe_features = ['education', 'marital_status']
             onehot = encoding.OneHotEncoder(drop_last=True, variables = ohe_features)
-
-            # Ordinal Encoding
-            ordinal_features = 'education'
-            ord = encoding.OrdinalEncoder(encoding_method='ordered', variables = ordinal_features)
 
             # Imputation of Income
             imput_features = 'income'
@@ -142,10 +143,10 @@ class ModelTrainer:
 
             # Data Pipeline
             model_pipe = Pipeline( steps = [('Mean Imputation', imput_income),
-                                                    ('OHE', onehot),
-                                                    ('Ordinal', ord),
-                                                    ('RF Model', rf)])
+                                            ('OHE', onehot),
+                                            ('RF Model', rf)])
 
+            
             # Training
             model_pipe.fit(X_train, y_train.values.ravel())
             logging.info("Random Forest fitted...")
