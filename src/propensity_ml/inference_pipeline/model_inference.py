@@ -18,14 +18,14 @@ def create_order(prob, classes, k = 5):
 
 @dataclass
 class ModelPropensityCfg:
-    if not os.path.exists('../../../output'):
+    if not os.path.exists('output'):
         # Create the folder if it doesn't exist
-        os.makedirs('../../../output')
+        os.makedirs('output')
 
-    model_propensity_infos = os.path.join("../../../models", "propensity_pipeline.json")
-    model_propensity_filepath = os.path.join("../../../models", "propensity_pipeline.pkl")
-    data_filepath = os.path.join("../../../artifacts/propensity", "processed_data.csv")
-    output_inference = "../../../output/"
+    model_propensity_infos = os.path.join("models", "propensity_pipeline.json")
+    model_propensity_filepath = os.path.join("models", "propensity_pipeline.pkl")
+    data_filepath = os.path.join("artifacts/propensity", "processed_data.csv")
+    output_inference = "output/"
 
 class PropensityModelInference:
     def __init__(self):

@@ -10,10 +10,10 @@ from dataclasses import dataclass
 
 @dataclass
 class DataIngestionCfg():
-    if not os.path.exists('../../../artifacts/propensity'):
+    if not os.path.exists('artifacts/propensity'):
         # Create the folder if it doesn't exist
-        os.makedirs('../../../artifacts/propensity')
-    raw_data_path: str = os.path.join('../../../artifacts/propensity', 'data.csv')
+        os.makedirs('artifacts/propensity')
+    raw_data_path: str = os.path.join('artifacts/propensity', 'data.csv')
 
 class DataIngestion():
     def __init__(self):
@@ -22,7 +22,7 @@ class DataIngestion():
     def initiate_data_ingestion(self):
         logging.info("Data Ingestion Started...")
         try:
-            df = pd.read_csv('../../../data/ml_project1_data.csv')
+            df = pd.read_csv('data/ml_project1_data.csv')
             logging.info("Dataset read...")
 
             # Saving to the raw path

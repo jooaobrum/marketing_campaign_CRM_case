@@ -43,13 +43,13 @@ from sklearn.tree import DecisionTreeClassifier
 @dataclass
 class ModelTrainingCfg:
 
-    if not os.path.exists('../../../models'):
+    if not os.path.exists('models'):
         # Create the folder if it doesn't exist
-        os.makedirs('../../../models')
+        os.makedirs('models')
 
-    propensity_infos_filepath = "../../../artifacts/propensity"
-    propensity_pipeline_filepath = os.path.join("../../../models", "propensity_pipeline.pkl")
-    processed_data_filepath = os.path.join("../../../artifacts/propensity", "processed_data.csv")
+    propensity_infos_filepath = "artifacts/propensity"
+    propensity_pipeline_filepath = os.path.join("models", "propensity_pipeline.pkl")
+    processed_data_filepath = os.path.join("artifacts/propensity", "processed_data.csv")
 
 class ModelTrainer:
     def __init__(self):

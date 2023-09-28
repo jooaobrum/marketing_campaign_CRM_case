@@ -18,14 +18,14 @@ def create_order(prob, classes, k = 5):
 
 @dataclass
 class ModelClusterCfg:
-    if not os.path.exists('../../../output'):
+    if not os.path.exists('output'):
         # Create the folder if it doesn't exist
-        os.makedirs('../../../output')
+        os.makedirs('output')
 
-    model_cluster_infos = os.path.join("../../../models", "cluster_pipeline.json")
-    model_cluster_filepath = os.path.join("../../../models", "cluster_pipeline.pkl")
-    data_filepath = os.path.join("../../../artifacts/clustering", "processed_data.csv")
-    output_inference = "../../../output/"
+    model_cluster_infos = os.path.join("models", "cluster_pipeline.json")
+    model_cluster_filepath = os.path.join("models", "cluster_pipeline.pkl")
+    data_filepath = os.path.join("artifacts/clustering", "processed_data.csv")
+    output_inference = "output/"
 
 class ClusterModelInference:
     def __init__(self):

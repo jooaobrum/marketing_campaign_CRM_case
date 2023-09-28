@@ -22,18 +22,27 @@ import matplotlib.pyplot as plt
 from dataclasses import dataclass
 
 
+def save_clustering_info(df, categories, cluster_id, image_label):
+    pca_num_components = 2
+    reduced_data = PCA(n_components=pca_num_components).fit_transform(df[categories].dropna())
+    results = pd.DataFrame(reduced_data,columns=['PCA1','PCA2'])
+    sns.heatmap(df[categories + [cluster_id]].groupby(cluster_id).mean(), cmap = 'YlGnBu', annot = True)
+    plt.title('K-means Clustering with 2 dimensions')
+    plt.savefig(image_label + ".png")
+    plt.close()
+
 
 
 @dataclass
 class ModelTrainingCfg:
 
-    if not os.path.exists('../../../models'):
+    if not os.path.exists('models'):
         # Create the folder if it doesn't exist
-        os.makedirs('../../../models')
+        os.makedirs('models')
 
-    cluster_infos_filepath = "../../../artifacts/clustering"
-    cluster_pipeline_filepath = os.path.join("../../../models", "cluster_pipeline.pkl")
-    processed_data_filepath = os.path.join("../../../artifacts/clustering", "processed_data.csv")
+    cluster_infos_filepath = "artifacts/clustering"
+    cluster_pipeline_filepath = os.path.join("models", "cluster_pipeline.pkl")
+    processed_data_filepath = os.path.join("artifacts/clustering", "processed_data.csv")
 
 class ModelTrainer:
     def __init__(self):
