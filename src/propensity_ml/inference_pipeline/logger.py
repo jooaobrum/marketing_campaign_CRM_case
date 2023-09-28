@@ -5,7 +5,7 @@ from datetime import datetime
 LOG_FILE = f"{datetime.now().strftime('%m_%d_%Y_%H_%M_%S')}.log"
 
 # Get the logs path
-logs_path = os.path.join(os.getcwd(), "logs", LOG_FILE)
+logs_path = os.path.join(os.getcwd(), "logs/inference/propensity", LOG_FILE)
 
 # Create the logs folder
 os.makedirs(logs_path, exist_ok = True)
