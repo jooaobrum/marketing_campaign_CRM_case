@@ -12,6 +12,7 @@ __pycache__/
 # Artifacts
 artifacts/
 models/
+output/
 
 # Distribution / packaging
 .Python
