@@ -57,7 +57,7 @@ class PropensityModelInference:
             logging.info("Scoring done...")
 
             df_propensity = df_propensity.sort_values(["Date", "Prob"], ascending= [True, False]).reset_index(drop = True)
-            df_propensity.to_csv(self.model_loader_config.output_inference + 'propensity_inference_' + now.strftime("%d%m%Y") + '.csv')
+            df_propensity.to_csv(self.model_loader_config.output_inference + 'propensity_inference_' + now.strftime("%d%m%Y%Hh%Mm%Ss") + '.csv')
             logging.info("Saving output...")
         
         except Exception as e:

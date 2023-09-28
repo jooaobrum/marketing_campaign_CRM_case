@@ -60,7 +60,7 @@ class ClusterModelInference:
             logging.info("Scoring done...")
 
             df_clusters = pd.DataFrame(prob_clusters, columns = ['ID', 'Date', 'Main Cluster', 'Alternative Cluster 1', 'Alternative Cluster 2'])
-            df_clusters.to_csv(self.model_loader_config.output_inference + 'cluster_inference_' + now.strftime("%d%m%Y") + '.csv')
+            df_clusters.to_csv(self.model_loader_config.output_inference + 'cluster_inference_' + now.strftime("%d%m%Y%Hh%Mm%Ss") + '.csv')
             logging.info("Saving output...")
         
         except Exception as e:
