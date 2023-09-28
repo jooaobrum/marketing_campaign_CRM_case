@@ -13,8 +13,8 @@ from dataclasses import dataclass
 
 @dataclass
 class DataTransformationCfg():
-    raw_data_path: str = os.path.join('../../../artifacts', 'data.csv')
-    processed_data_path: str = os.path.join('../../../artifacts', 'processed_data.csv')
+    raw_data_path: str = os.path.join('../../../artifacts/clustering', 'data.csv')
+    processed_data_path: str = os.path.join('../../../artifacts/clustering', 'processed_data.csv')
 
 class DataTransformation():
     def __init__(self):
