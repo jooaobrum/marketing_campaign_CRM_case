@@ -39,7 +39,7 @@ Since the business case is composed by 4 parts, I will split the problem in 3 di
 - Recommendations
 
 
-#### 3. Planning of Predictive Model (EXPLORATION) [TO BE DONE]
+#### 3. Planning of Predictive Model (EXPLORATION) [OK]
 - Data Preparation
 - Feature Selection
 - Machine Learning Modeling
