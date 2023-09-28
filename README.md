@@ -50,9 +50,8 @@ Since the business case is composed by 4 parts, I will split the problem in 3 di
 
 #### 4. Creating a Data Product [TO BE DONE]
 - Building Ingestion Pipeline 
-- Building ETL Pipelines
+- Building Transformation Pipelines
 - Building Model Pipelines
-- Orchestration 
 - End-to-end Application with Streamlit 
 - Deployment with Docker on EC2 or Local Machine 
 
