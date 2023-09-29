@@ -6,6 +6,7 @@ import datetime
 import json
 from dataclasses import dataclass
 from warnings import filterwarnings
+import utils
 
 # External Libraries
 import pandas as pd
@@ -14,6 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scikitplot as skplt
 from xgboost import XGBClassifier
+import boto3
 
 
 # Custom Libraries
@@ -39,7 +41,6 @@ from sklearn.tree import DecisionTreeClassifier
 
 
 
-
 @dataclass
 class ModelTrainingCfg:
 
@@ -50,6 +51,11 @@ class ModelTrainingCfg:
     propensity_infos_filepath = "artifacts/propensity"
     propensity_pipeline_filepath = os.path.join("models", "propensity_pipeline.pkl")
     processed_data_filepath = os.path.join("artifacts/propensity", "processed_data.csv")
+
+    # AWS Bucket integration
+    bucket_name = 'jooaobrum-projects'
+    s3_file_path = 'crm-project'
+    s3_client = boto3.client('s3')
 
 class ModelTrainer:
     def __init__(self):
@@ -224,7 +230,25 @@ class ModelTrainer:
             
             model_info_json = model_info.drop('model')
             model_info_json.to_json(os.path.splitext(self.model_trainer_config.propensity_pipeline_filepath)[0] + ".json", indent = 4)
-            logging.info("Model saved...")
+            utils.upload_file_to_s3(self.model_trainer_config.s3_client,
+                                    self.model_trainer_config.bucket_name,
+                                    os.path.splitext(self.model_trainer_config.propensity_pipeline_filepath)[0] + ".json",
+                                    os.path.join(self.model_trainer_config.s3_file_path, os.path.splitext(self.model_trainer_config.propensity_pipeline_filepath)[0] + ".json"))
+            
+
+
+            logging.info("Model saved locally...")
+            utils.upload_file_to_s3(self.model_trainer_config.s3_client,
+                                    self.model_trainer_config.bucket_name,
+                                    self.model_trainer_config.propensity_pipeline_filepath,
+                                    os.path.join(self.model_trainer_config.s3_file_path, self.model_trainer_config.propensity_pipeline_filepath))
+            
+            logging.info("Model saved on cloud...")
+
+            # Only upload the model to the cloud and delete locally
+            os.remove(self.model_trainer_config.propensity_pipeline_filepath)
+            os.remove(os.path.splitext(self.model_trainer_config.propensity_pipeline_filepath)[0] + ".json")
+            logging.info("Model deleted locally...")
 
             return model_info
         except Exception as e:

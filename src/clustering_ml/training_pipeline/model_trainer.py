@@ -3,6 +3,7 @@ import os
 import sys
 import datetime
 from utils import CustomException
+import utils
 from logger import logging
 from etl import transform
 import pandas as pd
@@ -20,6 +21,7 @@ from sklearn.decomposition import PCA
 import seaborn as sns 
 import matplotlib.pyplot as plt
 from dataclasses import dataclass
+import boto3
 
 
 def save_clustering_info(df, categories, cluster_id, image_label):
@@ -43,6 +45,11 @@ class ModelTrainingCfg:
     cluster_infos_filepath = "artifacts/clustering"
     cluster_pipeline_filepath = os.path.join("models", "cluster_pipeline.pkl")
     processed_data_filepath = os.path.join("artifacts/clustering", "processed_data.csv")
+
+    # AWS Bucket integration
+    bucket_name = 'jooaobrum-projects'
+    s3_file_path = 'crm-project'
+    s3_client = boto3.client('s3')
 
 class ModelTrainer:
     def __init__(self):
@@ -168,8 +175,25 @@ class ModelTrainer:
             
             model_info_json = model_info.drop('model')
             model_info_json.to_json(os.path.splitext(self.model_trainer_config.cluster_pipeline_filepath)[0] + ".json", indent = 4)
-            logging.info("Model saved...")
+            utils.upload_file_to_s3(self.model_trainer_config.s3_client,
+                                    self.model_trainer_config.bucket_name,
+                                    os.path.splitext(self.model_trainer_config.cluster_pipeline_filepath)[0] + ".json",
+                                    os.path.join(self.model_trainer_config.s3_file_path, os.path.splitext(self.model_trainer_config.cluster_pipeline_filepath)[0] + ".json"))
+            
 
+
+            logging.info("Model saved locally...")
+            utils.upload_file_to_s3(self.model_trainer_config.s3_client,
+                                    self.model_trainer_config.bucket_name,
+                                    self.model_trainer_config.cluster_pipeline_filepath,
+                                    os.path.join(self.model_trainer_config.s3_file_path, self.model_trainer_config.cluster_pipeline_filepath))
+            
+            logging.info("Model saved on cloud...")
+
+            # Only upload the model to the cloud and delete locally
+            os.remove(self.model_trainer_config.cluster_pipeline_filepath)
+            os.remove(os.path.splitext(self.model_trainer_config.cluster_pipeline_filepath)[0] + ".json")
+            logging.info("Model deleted locally...")
             return model_info
         except Exception as e:
             raise CustomException(e, sys)

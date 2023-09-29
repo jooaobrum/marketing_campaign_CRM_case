@@ -84,7 +84,7 @@ def download_file_from_s3(client, bucket_name, s3_file_path, local_folder_path):
 
         # Download the file from S3 to the local folder
         with open(local_file_path, 'wb') as f:
-            s3.download_fileobj(bucket_name, s3_file_path, f)
+            client.download_fileobj(bucket_name, s3_file_path, f)
 
         print(f'Successfully downloaded {bucket_name}/{file_name} to {local_folder_path}/{file_name}')
         
