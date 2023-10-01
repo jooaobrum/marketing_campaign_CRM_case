@@ -7,6 +7,7 @@ from logger import logging
 import pandas as pd
 import datetime 
 import boto3
+import json
 
 from dataclasses import dataclass
 
@@ -18,6 +19,31 @@ def create_order(prob, classes, k = 5):
 
     return [element[1] for element in list_probs[:k]]
 
+# Check if model exists locally or is updated
+def check_model_functional(model_path, json_path):
+        
+        if os.path.exists(model_path) and os.path.isfile(model_path):
+            with open(json_path, 'r') as json_file:
+                model_info = json.load(json_file)
+
+            model_date = datetime.datetime.strptime(model_info['date'].split(' ')[0], "%Y-%m-%d")
+            now = datetime.datetime.now()
+            
+            if (now - model_date).days < 7:
+                 logging.info("Model is updated...")
+                 return True
+                
+
+            else:
+                logging.info("Model is outdated...")
+                return False
+
+        else:
+            logging.info("Model not found locally...")
+            return False
+
+
+
 @dataclass
 class ModelClusterCfg:
     if not os.path.exists('output'):
@@ -28,6 +54,9 @@ class ModelClusterCfg:
     model_cluster_filepath = os.path.join("models", "cluster_pipeline.pkl")
     data_filepath = os.path.join("artifacts/clustering", "processed_data.csv")
     output_inference = "output/"
+
+
+    
 
     #AWS Bucket
     bucket_name = 'jooaobrum-projects'
@@ -42,19 +71,26 @@ class ClusterModelInference:
         logging.info("Model Clustering Inference Started...")
         try:
             now = datetime.datetime.now()
-
-            # Download model from S3 bucket
-            utils.download_file_from_s3(self.model_loader_config.s3_client, 
-                                        self.model_loader_config.bucket_name, 
-                                        os.path.join(self.model_loader_config.s3_file_path, self.model_loader_config.model_cluster_filepath.split('/')[-1]),
-                                        self.model_loader_config.model_cluster_filepath.split('/')[0])
             
-            # Download model info from S3
-            utils.download_file_from_s3(self.model_loader_config.s3_client, 
-                                        self.model_loader_config.bucket_name, 
-                                        os.path.join(self.model_loader_config.s3_file_path, self.model_loader_config.model_cluster_filepath.split('/')[-1].split('.')[0] + '.json'),
-                                        self.model_loader_config.model_cluster_filepath.split('/')[0])
-            logging.info("Downloading model from cloud...")
+            # Check if model exists - otherwise download it
+            if check_model_functional(self.model_loader_config.model_cluster_filepath,
+                                      self.model_loader_config.model_cluster_infos):
+            
+                pass
+
+            else:
+                # Download model from S3 bucket
+                utils.download_file_from_s3(self.model_loader_config.s3_client, 
+                                            self.model_loader_config.bucket_name, 
+                                            os.path.join(self.model_loader_config.s3_file_path, self.model_loader_config.model_cluster_filepath.split('/')[-1]),
+                                            self.model_loader_config.model_cluster_filepath.split('/')[0])
+                
+                # Download model info from S3
+                utils.download_file_from_s3(self.model_loader_config.s3_client, 
+                                            self.model_loader_config.bucket_name, 
+                                            os.path.join(self.model_loader_config.s3_file_path, self.model_loader_config.model_cluster_filepath.split('/')[-1].split('.')[0] + '.json'),
+                                            self.model_loader_config.model_cluster_filepath.split('/')[0])
+                logging.info("Downloading model from cloud...")
 
             # Read the model to cluster data
             model = pd.read_pickle(self.model_loader_config.model_cluster_filepath)
@@ -94,9 +130,7 @@ class ClusterModelInference:
             os.remove(self.model_loader_config.output_inference + 'cluster_inference_' + now.strftime("%d%m%Y%Hh%Mm%Ss") + '.csv')
             logging.info("Removing output locally...")
 
-            os.remove(self.model_loader_config.model_cluster_filepath)
-            os.remove(self.model_loader_config.model_cluster_infos)
-            logging.info("Removing model locally...")
+            
            
 
         except Exception as e:

@@ -7,6 +7,7 @@ from logger import logging
 import pandas as pd
 import datetime 
 import boto3
+import json
 
 from dataclasses import dataclass
 
@@ -17,6 +18,29 @@ def create_order(prob, classes, k = 5):
     list_probs.sort(key = lambda x: x[0], reverse = True)
 
     return [element[1] for element in list_probs[:k]]
+
+# Check if model exists locally or is updated
+def check_model_functional(model_path, json_path):
+        
+        if os.path.exists(model_path) and os.path.isfile(model_path):
+            with open(json_path, 'r') as json_file:
+                model_info = json.load(json_file)
+
+            model_date = datetime.datetime.strptime(model_info['date'].split(' ')[0], "%Y-%m-%d")
+            now = datetime.datetime.now()
+            
+            if (now - model_date).days < 7:
+                 logging.info("Model is updated...")
+                 return True
+                
+
+            else:
+                logging.info("Model is outdated...")
+                return False
+
+        else:
+            logging.info("Model not found locally...")
+            return False
 
 @dataclass
 class ModelPropensityCfg:
@@ -43,18 +67,26 @@ class PropensityModelInference:
         try:
             now = datetime.datetime.now()
 
-            # Download model from S3 bucket
-            utils.download_file_from_s3(self.model_loader_config.s3_client, 
-                                        self.model_loader_config.bucket_name, 
-                                        os.path.join(self.model_loader_config.s3_file_path, self.model_loader_config.model_propensity_filepath.split('/')[-1]),
-                                        self.model_loader_config.model_propensity_filepath.split('/')[0])
+            # Check if model exists - otherwise download it
+            if check_model_functional(self.model_loader_config.model_propensity_filepath,
+                                      self.model_loader_config.model_propensity_infos):
             
-            # Download model info from S3
-            utils.download_file_from_s3(self.model_loader_config.s3_client, 
-                                        self.model_loader_config.bucket_name, 
-                                        os.path.join(self.model_loader_config.s3_file_path, self.model_loader_config.model_propensity_filepath.split('/')[-1].split('.')[0] + '.json'),
-                                        self.model_loader_config.model_propensity_filepath.split('/')[0])
-            logging.info("Downloading model from cloud...")
+                pass
+
+            else:
+                # Download model from S3 bucket
+                utils.download_file_from_s3(self.model_loader_config.s3_client, 
+                                            self.model_loader_config.bucket_name, 
+                                            os.path.join(self.model_loader_config.s3_file_path, self.model_loader_config.model_propensity_filepath.split('/')[-1]),
+                                            self.model_loader_config.model_propensity_filepath.split('/')[0])
+                
+                # Download model info from S3
+                utils.download_file_from_s3(self.model_loader_config.s3_client, 
+                                            self.model_loader_config.bucket_name, 
+                                            os.path.join(self.model_loader_config.s3_file_path, self.model_loader_config.model_propensity_filepath.split('/')[-1].split('.')[0] + '.json'),
+                                            self.model_loader_config.model_propensity_filepath.split('/')[0])
+                logging.info("Downloading model from cloud...")
+
 
 
             # Read the model to score data
@@ -92,9 +124,6 @@ class PropensityModelInference:
             os.remove(self.model_loader_config.output_inference + 'propensity_inference_' + now.strftime("%d%m%Y%Hh%Mm%Ss") + '.csv')
             logging.info("Removing output locally...")
 
-            os.remove(self.model_loader_config.model_propensity_filepath)
-            os.remove(self.model_loader_config.model_propensity_infos)
-            logging.info("Removing model locally...")
         
         except Exception as e:
             raise CustomException(e, sys)
