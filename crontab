@@ -10,4 +10,4 @@
 
 * * * * * cd /crm-ml-playground && python3 src/clustering_ml/inference_pipeline/clustering_inference_pipeline.py
 
-# An empty line is required at the end of this file for a valid cron file 
+# An empty line is required at the end of this file for a valid cron file  
