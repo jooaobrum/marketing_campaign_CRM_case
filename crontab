@@ -6,8 +6,8 @@
 
 
 # Inference pipelines - running every day at midnight
-* * * * * cd /crm-ml-playground && python3 src/propensity_ml/inference_pipeline/propensity_inference_pipeline.py
+0 0 * * * cd /crm-ml-playground && python3 src/propensity_ml/inference_pipeline/propensity_inference_pipeline.py
 
-* * * * * cd /crm-ml-playground && python3 src/clustering_ml/inference_pipeline/clustering_inference_pipeline.py
+0 0 * * * cd /crm-ml-playground && python3 src/clustering_ml/inference_pipeline/clustering_inference_pipeline.py
 
 # An empty line is required at the end of this file for a valid cron file  
