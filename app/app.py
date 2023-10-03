@@ -307,7 +307,7 @@ def page_3():
 
    
 
-
+st.sidebar.image("app/images/logo.png", use_column_width=True)
 # Create a Streamlit app
 st.sidebar.title('Marketing Campaigns Analysis')
 # Create a Streamlit app
@@ -316,6 +316,8 @@ st.sidebar.title('Navigation')
 # Create a sidebar menu for navigation
 selected_page = st.sidebar.radio("Select a page", ("KPIs Analysis", "Marketing Targets", "Campaign Advisor"))
 
+
+
 # Depending on the selected page, display the corresponding content
 if selected_page == "KPIs Analysis":
     page_1()
@@ -323,3 +325,16 @@ elif selected_page == "Marketing Targets":
     page_2()
 elif selected_page == "Campaign Advisor":
     page_3()
+
+
+st.sidebar.info(
+        """
+        My name is João Paulo Sales Brum . I am data scientist and passionate by data pipelines.
+        If you want to know more about my projects, you can acess my social medias.
+
+        Github: [github.com/jooaobrum](https://github.com/jooaobrum)
+        Linkedin: [linkedin.com/jooaobrum](https://www.linkedin.com/in/jooaobrum/)
+
+        This report was generated using Streamlit.
+	"""
+    )
