@@ -50,6 +50,12 @@ class ModelClusterCfg:
         # Create the folder if it doesn't exist
         os.makedirs('output')
 
+    if not os.path.exists('models'):
+        # Create the folder if it doesn't exist
+        os.makedirs('models')
+
+    
+
     model_cluster_infos = os.path.join("models", "cluster_pipeline.json")
     model_cluster_filepath = os.path.join("models", "cluster_pipeline.pkl")
     data_filepath = os.path.join("artifacts/clustering", "processed_data.csv")

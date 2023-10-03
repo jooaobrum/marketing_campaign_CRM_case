@@ -48,6 +48,10 @@ class ModelPropensityCfg:
         # Create the folder if it doesn't exist
         os.makedirs('output')
 
+    if not os.path.exists('models'):
+        # Create the folder if it doesn't exist
+        os.makedirs('models')
+
     model_propensity_infos = os.path.join("models", "propensity_pipeline.json")
     model_propensity_filepath = os.path.join("models", "propensity_pipeline.pkl")
     data_filepath = os.path.join("artifacts/propensity", "processed_data.csv")
