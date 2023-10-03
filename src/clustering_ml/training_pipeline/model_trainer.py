@@ -27,10 +27,15 @@ import boto3
 def save_clustering_info(df, categories, cluster_id, image_label):
     pca_num_components = 2
     reduced_data = PCA(n_components=pca_num_components).fit_transform(df[categories].dropna())
-    results = pd.DataFrame(reduced_data,columns=['PCA1','PCA2'])
-    sns.heatmap(df[categories + [cluster_id]].groupby(cluster_id).mean(), cmap = 'YlGnBu', annot = True)
+    results = pd.DataFrame(reduced_data, columns=['PCA1', 'PCA2'])
+
+    # Create the heatmap with annotations
+    plt.figure(figsize=(8, 6))  # Set the figure size as needed
+    heatmap = sns.heatmap(df[categories + [cluster_id]].groupby(cluster_id).mean(), cmap='YlGnBu', annot=True, fmt=".2f")
     plt.title('K-means Clustering with 2 dimensions')
-    plt.savefig(image_label + ".png")
+
+    # Save the figure with annotations
+    heatmap.get_figure().savefig(image_label + ".png", bbox_inches='tight')
     plt.close()
 
 

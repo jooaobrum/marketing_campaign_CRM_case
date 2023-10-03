@@ -110,7 +110,7 @@ class PropensityModelInference:
             # Add ID
             df_propensity = pd.DataFrame()
             df_propensity['ID'] = df['id'].values.tolist()
-            df_propensity['Date'] = now.strftime("%d%/%m/%Y")
+            df_propensity['Date'] = now.strftime("%d/%m/%Y")
             df_propensity['Prob'] = y_pred_prob[:, 1]
             logging.info("Scoring done...")
 
