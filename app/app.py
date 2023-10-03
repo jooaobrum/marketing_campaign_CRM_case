@@ -9,11 +9,27 @@ import io
 import os
 import base64
 import json
+import openai
+from dotenv import load_dotenv
 from utils import read_file_from_s3, download_file_from_s3
-
+from time import sleep
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
+load_dotenv()
 
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+
+def ask_gpt(question, context):
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You're a marketing specialist that build marketing campaigns."},
+            {"role": "user", "content": context},
+            {"role": "user", "content": question}
+        ]
+    )
+    return response.choices[0].message['content'].strip()
 
 
 def page_1():
@@ -140,6 +156,7 @@ def page_1():
     plt.ylabel('Number of Customers')
     plt.title('Customer Age Distribution')
     st.pyplot()
+    sleep(0.2)
 
     # Visualization 2: Percentage of Spending on Product Categories
     st.subheader('Percentage of Spending on Product Categories')
@@ -254,6 +271,41 @@ def page_2():
     st.write("Cluster Behavior:")
     st.image('app/artifacts/cluster_id_rfm.png', caption='Cluster Behavior', use_column_width=True)
 
+
+
+def page_3():
+
+    st.title("Organize your campaign!")
+    st.write("Powered by Open AI")
+    st.write("Campaign Objective:")
+    
+    obj1 = st.text_input("What are the specific goals and objectives you aim to achieve with this marketing campaign?")
+    kpi = st.text_input("Who do you envision measuring the success of this campaign (KPIs)?")
+    
+    st.write("Target Audience:")
+    tar1 = st.text_input("Who is your primary target audience for this campaign? Please describe their demographics, interests, and behaviors.")
+    
+    st.write("Key Messages:")
+    mess = st.text_input("What are the key messages or value propositions you want to convey to your audience through this campaign?")
+    
+    st.write("Budget Allocation:")
+    budget = st.text_input("What is the budget for this campaign?")
+
+    st.write("Additional Information (Optional):")
+    add_info = st.text_input("Write down the additional information.")
+    
+    
+    all_characteristics = [obj1, kpi, tar1, mess, budget]
+    question = "\n".join(all_characteristics)
+    
+    st.write(question)
+
+    context = "Act as a marketing specialist. Build a marketing campaign based on the following user input and also create a content plan. "
+    if st.button('Ask to the Advisor'):
+            answer = ask_gpt(question, context)
+            st.write(f"Answer: {answer}")
+
+   
 
 
 # Create a Streamlit app
