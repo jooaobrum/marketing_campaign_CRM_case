@@ -8,4 +8,4 @@ boto3==1.28.57
 botocore==1.31.57
 streamlit==1.27.1
 openai==0.28.1
-dotenv==1.0.0
+python-dotenv==1.0.0
