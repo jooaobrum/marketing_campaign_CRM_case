@@ -15,7 +15,7 @@ st.set_option('deprecation.showPyplotGlobalUse', False)
 
 
 
-@st.cache_data(experimental_allow_widgets=True)
+
 def page_1():
 
     # Load your data into a DataFrame (replace 'data.csv' with your data file)
@@ -155,7 +155,7 @@ def page_1():
     percentage_spending_channel = filtered_data[channel_categories].sum() / total_spending * 100
     st.bar_chart(percentage_spending_channel)   
 
-@st.cache_data(experimental_allow_widgets=True)
+
 def page_2():
 
   
@@ -198,7 +198,7 @@ def page_2():
     df_prop.columns = ['ID', 'Date', 'Prob. to Accept']
 
     df = pd.merge(df_cluster, df_prop, on = ['ID', 'Date'], how = 'left')
-
+    df = df.sort_values(["Date", "Prob. to Accept"], ascending=[False, False])
 
     # Create a Streamlit app
     st.subheader('Customer Clusters and Target')
