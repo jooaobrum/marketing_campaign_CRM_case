@@ -24,7 +24,7 @@ Since the business case is composed by 4 parts, I will split the problem in 3 di
 
 ince we have all exploration phases validated, let's build a data produt using Streamlit! First, I'll build 2 algorithms inside a docker container running on batch mode. First, I create the training pipeline for propensity and clustering algorithms and then the inference pipeline. The model is deployed with Github Actions, which means that it will trigger a commit on main to test the code and push the repository image to a docker container inside AWS Container Registry (ECR). This container will be deployed in a EC2 with S3 connection.
 
-### Tools
+### Main Tools
 - Python
 - Docker
 - Cron
@@ -32,6 +32,8 @@ ince we have all exploration phases validated, let's build a data produt using S
 - AWS EC2
 - AWS ECR
 - Github Actions
+- Chat-GPT
+- Streamlit
 
 
 #### 1. Planning of Data Analysis (EXPLORATION) [OK] 
