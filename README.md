@@ -48,13 +48,16 @@ Since the business case is composed by 4 parts, I will split the problem in 3 di
 - Business Impact
 
 
-#### 4. Creating a Data Product [TO BE DONE]
+#### 4. Creating a Data Product [OK]
 - Building Ingestion Pipeline 
 - Building Transformation Pipelines
 - Building Model Pipelines
 - End-to-end Application with Streamlit 
 - Deployment with Docker on EC2 or Local Machine 
 
+
+### Application Running on Streamlit
+https://crm-analytics.streamlit.app
 
 ### Analysis & Insights Storytelling
 [[PT-BR] Alavancando Insights de Campanhas de Marketing - Parte 1](https://medium.com/@indatawetrust.idwt/alavancando-insights-de-campanhas-de-marketing-com-an%C3%A1lise-explorat%C3%B3ria-e-shap-explainable-ai-207ae7e7b97c)
@@ -72,3 +75,48 @@ Since the business case is composed by 4 parts, I will split the problem in 3 di
  [@jooaobrum](https://linkedin.com/in/jooaobrum)
 
 [def]: https://www.cora.com.br/blog/wp-content/uploads/2021/03/Imagem-Ifood-red-1.png
+
+### Deployment Using Docker Locally
+1.0 Clone the repository
+
+```bash
+git clone https://github.com/jooaobrum/marketing_campaign_CRM_case.git
+cd marketing_campaign_CRM_case
+```
+2.0 Create a image for Docker Container
+```bash
+docker build -t crm-project .
+```
+
+3.0 Run the Docker Container
+```bash
+docker run -itd --name=crm-ml -e 'AWS_ACCESS_KEY_ID=${{AWS_ACCESS_KEY_ID }}' -e 'AWS_SECRET_ACCESS_KEY=${{AWS_SECRET_ACCESS_KEY }}' -e 'AWS_REGION=${{ secrets.AWS_REGION }}'  ${{AWS_ECR_LOGIN_URI}}/$ crm-project
+```
+
+Alright, now, clustering and propensity algorithm are running on a docker container and send data to a S3 bucket at AWS. This cluster is running everyday a batch score and every week a training pipeline.
+
+### App Deploy with Streamlit
+
+1.0 Clone the repository 
+```bash
+git clone https://github.com/jooaobrum/marketing_campaign_CRM_case.git
+cd marketing_campaign_CRM_case
+```
+
+2.0 Install all necessary libraries
+```bash
+pip install -r app/requirements.txt
+```
+
+3.0 Execute the application
+```bash
+streamlit run app/app.py
+```
+
+
+
+
+
+
+
+
