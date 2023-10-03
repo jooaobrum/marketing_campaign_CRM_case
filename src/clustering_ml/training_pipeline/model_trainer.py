@@ -86,7 +86,11 @@ class ModelTrainer:
 
             # Save heatmap of clustering
             save_clustering_info(df, categories_prod, "cluster_id_prod", self.model_trainer_config.cluster_infos_filepath + "/cluster_id_prod")
-
+            
+            utils.upload_file_to_s3(self.model_trainer_config.s3_client,
+                                    self.model_trainer_config.bucket_name,
+                                    'artifacts/clustering/cluster_id_prod.png',
+                                    os.path.join(self.model_trainer_config.s3_file_path, 'models/cluster_id_prod.png'))
             # Clustering Channels 
             categories_channel = ['percentage_type_deals', 'percentage_type_web', 'percentage_type_catalog', 'percentage_type_store']
             kmeans_channel = KMeans(n_clusters=4, random_state=0, init='k-means++').fit(df_scaled[categories_channel])
@@ -97,7 +101,10 @@ class ModelTrainer:
 
             # Save heatmap of clustering
             save_clustering_info(df, categories_channel, "cluster_id_channel", self.model_trainer_config.cluster_infos_filepath + "/cluster_id_channel")
-
+            utils.upload_file_to_s3(self.model_trainer_config.s3_client,
+                                    self.model_trainer_config.bucket_name,
+                                    'artifacts/clustering/cluster_id_channel.png',
+                                    os.path.join(self.model_trainer_config.s3_file_path, 'models/cluster_id_channel.png'))
 
 
             # Clustetering RFM
@@ -109,6 +116,10 @@ class ModelTrainer:
             df['cluster_id_rfm'] = cluster_id_rfm
             df_scaled['cluster_id_rfm'] = cluster_id_rfm
             save_clustering_info(df_scaled, categories_rfm, "cluster_id_rfm", self.model_trainer_config.cluster_infos_filepath + "/cluster_id_rfm")
+            utils.upload_file_to_s3(self.model_trainer_config.s3_client,
+                                    self.model_trainer_config.bucket_name,
+                                    'artifacts/clustering/cluster_id_rfm.png',
+                                    os.path.join(self.model_trainer_config.s3_file_path, 'models/cluster_id_rfm.png'))
 
             logging.info("Cluster for RFM created...")
 

@@ -6,42 +6,14 @@ import boto3
 import datetime
 import botocore
 import io
+import os
 import base64
 import json
+from utils import read_file_from_s3, download_file_from_s3
 
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
 
-def read_file_from_s3(client, bucket_name, s3_file_path):
-    try:
-        response = client.get_object(Bucket=bucket_name, Key=s3_file_path)
-        body = response['Body'].read()
-
-        # Read the file contents based on the content type
-        if s3_file_path.split('.')[-1] == 'pkl':
-            # Binary data (e.g., pickle)
-            file_contents = pickle.loads(body)
-
-        elif s3_file_path.split('.')[-1] == 'csv':
-            # CSV file
-            file_contents = pd.read_csv(io.BytesIO(body) )
-        
-        elif s3_file_path.split('.')[-1] == 'json':
-            # JSON file
-            file_contents = json.loads(body.decode('utf-8'))
-
-        else:
-            # Handle unsupported content types or raise an exception
-            raise ValueError('Unsupported content type.')
-
-        print(f'Successfully read file contents from {bucket_name}/{s3_file_path}:')
-        return file_contents
-    except botocore.exceptions.ClientError as e:
-        if e.response['Error']['Code'] == 'NoSuchKey':
-            print(f'The object {bucket_name}/{s3_file_path} does not exist.')
-        else:
-            print(f'Error reading {bucket_name}/{s3_file_path}: {str(e)}')
-        return None
 
 @st.cache_data(experimental_allow_widgets=True)
 def page_1():
@@ -266,13 +238,21 @@ def page_2():
     # Generate and display the download link
     st.markdown(f'<a href="data:file/csv;base64,{b64}" download="{csv_filename}">Export CSV file</a>', unsafe_allow_html=True)
 
+
+    if not os.path.exists('app/artifacts'):
+        # Create the folder if it doesn't exist
+        os.makedirs('app/artifacts')
+    download_file_from_s3(s3_client, bucket_name, 'crm-project/models/cluster_id_channel.png', 'app/artifacts')
+    download_file_from_s3(s3_client, bucket_name, 'crm-project/models/cluster_id_prod.png', 'app/artifacts')
+    download_file_from_s3(s3_client, bucket_name, 'crm-project/models/cluster_id_rfm.png', 'app/artifacts')
+
     st.subheader('Cluster Legends')
     st.write("Cluster Channel:")
-    st.image('artifacts/clustering/cluster_id_channel.png', caption='Cluster Channel', use_column_width=True)
+    st.image('app/artifacts/cluster_id_channel.png', caption='Cluster Channel', use_column_width=True)
     st.write("Cluster Products:")
-    st.image('artifacts/clustering/cluster_id_prod.png', caption='Cluster Products', use_column_width=True)
+    st.image('app/artifacts/cluster_id_prod.png', caption='Cluster Products', use_column_width=True)
     st.write("Cluster Behavior:")
-    st.image('artifacts/clustering/cluster_id_rfm.png', caption='Cluster Behavior', use_column_width=True)
+    st.image('app/artifacts/cluster_id_rfm.png', caption='Cluster Behavior', use_column_width=True)
 
 
 
