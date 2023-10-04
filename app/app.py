@@ -219,7 +219,7 @@ def page_2():
 
     # Create a Streamlit app
     st.subheader('Customer Clusters and Target')
-    st.write("Legend: Channel_Products_Behavior")
+    st.write("Legend: Products_Channel_Behavior")
     selected_main_cluster = st.sidebar.selectbox('Select Main Cluster', ['All'] + df['Main Cluster'].unique().tolist())
 
     selected_sec_cluster = st.sidebar.selectbox('Select Alternative Cluster 1', ['All'] + df['Alternative Cluster 1'].unique().tolist())
@@ -263,7 +263,8 @@ def page_2():
     download_file_from_s3(s3_client, bucket_name, 'crm-project/models/cluster_id_prod.png', 'app/artifacts')
     download_file_from_s3(s3_client, bucket_name, 'crm-project/models/cluster_id_rfm.png', 'app/artifacts')
 
-    st.subheader('Cluster Legends')
+    st.subheader('Cluster Interpretation:')
+    st.write("Given the plot below, create personas as you want! The values are normalized wihtin 0 and 1.")
     st.write("Cluster Channel:")
     st.image('app/artifacts/cluster_id_channel.png', caption='Cluster Channel', use_column_width=True)
     st.write("Cluster Products:")
