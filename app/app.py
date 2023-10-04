@@ -13,6 +13,12 @@ import openai
 from dotenv import load_dotenv
 from utils import read_file_from_s3, download_file_from_s3
 from time import sleep
+from pandas.api.types import (
+    is_categorical_dtype,
+    is_datetime64_any_dtype,
+    is_numeric_dtype,
+    is_object_dtype,
+)
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
 load_dotenv()
@@ -30,6 +36,81 @@ def ask_gpt(question, context):
         ]
     )
     return response.choices[0].message['content'].strip()
+
+def filter_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Adds a UI on top of a dataframe to let viewers filter columns
+
+    Args:
+        df (pd.DataFrame): Original dataframe
+
+    Returns:
+        pd.DataFrame: Filtered dataframe
+    """
+    modify = st.checkbox("Let's build your clusters based on preferences!")
+
+    if not modify:
+        return df
+
+    df = df.copy()
+
+    # Try to convert datetimes into a standard format (datetime, no timezone)
+    for col in df.columns:
+        if is_object_dtype(df[col]):
+            try:
+                df[col] = pd.to_datetime(df[col])
+            except Exception:
+                pass
+
+        if is_datetime64_any_dtype(df[col]):
+            df[col] = df[col].dt.tz_localize(None)
+
+    modification_container = st.container()
+
+    with modification_container:
+        to_filter_columns = st.multiselect("Filter preferences on", df.columns)
+        for column in to_filter_columns:
+            left, right = st.columns((1, 20))
+            # Treat columns with < 10 unique values as categorical
+            if is_categorical_dtype(df[column]) or df[column].nunique() < 10:
+                user_cat_input = right.multiselect(
+                    f"Values for {column}",
+                    df[column].unique(),
+                    default=list(df[column].unique()),
+                )
+                df = df[df[column].isin(user_cat_input)]
+            elif is_numeric_dtype(df[column]):
+                _min = float(df[column].min())
+                _max = float(df[column].max())
+                step = (_max - _min) / 100
+                user_num_input = right.slider(
+                    f"Values for {column}",
+                    min_value=_min,
+                    max_value=_max,
+                    value=(_min, _max),
+                    step=step,
+                )
+                df = df[df[column].between(*user_num_input)]
+            elif is_datetime64_any_dtype(df[column]):
+                user_date_input = right.date_input(
+                    f"Values for {column}",
+                    value=(
+                        df[column].min(),
+                        df[column].max(),
+                    ),
+                )
+                if len(user_date_input) == 2:
+                    user_date_input = tuple(map(pd.to_datetime, user_date_input))
+                    start_date, end_date = user_date_input
+                    df = df.loc[df[column].between(start_date, end_date)]
+            else:
+                user_text_input = right.text_input(
+                    f"Substring or regex in {column}",
+                )
+                if user_text_input:
+                    df = df[df[column].astype(str).str.contains(user_text_input)]
+
+    return df
 
 
 def page_1():
@@ -212,68 +293,107 @@ def page_2():
 
     df_prop = read_file_from_s3(s3_client, bucket_name, most_recent_propensity['object']['Key'])
     df_prop = df_prop[['ID', 'Date', 'Prob']]
-    df_prop.columns = ['ID', 'Date', 'Prob. to Accept']
+    df_prop['Prob'] = df_prop['Prob'].mul(100)
+    df_prop.columns = ['ID', 'Date', 'Prob. to Accept (%)']
 
     df = pd.merge(df_cluster, df_prop, on = ['ID', 'Date'], how = 'left')
-    df = df.sort_values(["Date", "Prob. to Accept"], ascending=[False, False])
+    df = df.sort_values(["Date", "Prob. to Accept (%)"], ascending=[False, False])
+
+    cluster_summary = read_file_from_s3(s3_client, bucket_name, 'crm-project/models/summary_clusters.csv')
+    cluster_summary = cluster_summary.iloc[:, 1:]
+
 
     # Create a Streamlit app
     st.subheader('Customer Clusters and Target')
-    st.write("Legend: Products_Channel_Behavior")
-    selected_main_cluster = st.sidebar.selectbox('Select Main Cluster', ['All'] + df['Main Cluster'].unique().tolist())
+    filtered_data = filter_dataframe(cluster_summary)
+    #st.dataframe(filtered_data)
+    selected_clusters = filtered_data['Cluster'].unique().tolist()
 
-    selected_sec_cluster = st.sidebar.selectbox('Select Alternative Cluster 1', ['All'] + df['Alternative Cluster 1'].unique().tolist())
+    df_filt = df[df['Main Cluster'].isin(selected_clusters)]
 
-    selected_third_cluster = st.sidebar.selectbox('Select Alternative Cluster 2', ['All'] + df['Alternative Cluster 2'].unique().tolist())
+       #st.write("Legend: Products_Channel_Behavior")
+    #selected_main_cluster = st.sidebar.selectbox('Select Main Cluster', ['All'] + df['Main Cluster'].unique().tolist())
 
+    #selected_sec_cluster = st.sidebar.selectbox('Select Alternative Cluster 1', ['All'] + df['Alternative Cluster 1'].unique().tolist())
+
+    #selected_third_cluster = st.sidebar.selectbox('Select Alternative Cluster 2', ['All'] + df['Alternative Cluster 2'].unique().tolist())
+
+    st.write("Select Probability to Accept a Campaign:")
     # Filter by Prob threshold
-    threshold = st.sidebar.slider('Select Probability to Accept Threshold', min_value=0.0, max_value=1.0, value=0.0, step=0.05)
+    threshold = st.slider('Threshold', min_value=0.0, max_value=100.0, value=0.0, step=5.0)
 
     # Apply filters to the data
-    if selected_main_cluster != 'All':
-        filtered_data = df[df['Main Cluster'] == selected_main_cluster]
-    else:
-        filtered_data = df.copy() 
+    #if selected_main_cluster != 'All':
+    #    filtered_data = df[df['Main Cluster'] == selected_main_cluster]
+    #else:
+    #    filtered_data = df.copy() 
 
-    if selected_sec_cluster != 'All':
-        filtered_data = filtered_data[filtered_data['Alternative Cluster 1'] == selected_sec_cluster]
+    #if selected_sec_cluster != 'All':
+    #    filtered_data = filtered_data[filtered_data['Alternative Cluster 1'] == selected_sec_cluster]
 
-    if selected_third_cluster != 'All':
-        filtered_data = filtered_data[filtered_data['Alternative Cluster 2'] == selected_third_cluster]
+    #if selected_third_cluster != 'All':
+    #    filtered_data = filtered_data[filtered_data['Alternative Cluster 2'] == selected_third_cluster]
 
     # Apply Prob threshold filter
-    filtered_data = filtered_data[filtered_data['Prob. to Accept'] > threshold]
+    df_filt = df_filt[df_filt['Prob. to Accept (%)'] > threshold]
 
-    st.write(filtered_data)
+    st.write(df_filt)
+    st.write("Number of Target Customers:", len(df_filt))
 
     # Create a button to download the filtered DataFrame as a CSV file
-    csv_data = filtered_data.to_csv(index=False)
+    csv_data = df_filt.to_csv(index=False)
     b64 = base64.b64encode(csv_data.encode()).decode()  # Encode to base64
-    csv_filename = "filtered_data.csv"
+    csv_filename = "exported_data.csv"
 
 
     # Generate and display the download link
     st.markdown(f'<a href="data:file/csv;base64,{b64}" download="{csv_filename}">Export CSV file</a>', unsafe_allow_html=True)
 
 
-    if not os.path.exists('app/artifacts'):
-        # Create the folder if it doesn't exist
-        os.makedirs('app/artifacts')
-    download_file_from_s3(s3_client, bucket_name, 'crm-project/models/cluster_id_channel.png', 'app/artifacts')
-    download_file_from_s3(s3_client, bucket_name, 'crm-project/models/cluster_id_prod.png', 'app/artifacts')
-    download_file_from_s3(s3_client, bucket_name, 'crm-project/models/cluster_id_rfm.png', 'app/artifacts')
+    # Streamlit App
+    st.subheader("Cluster Characteristics:")
 
-    st.subheader('Cluster Interpretation:')
-    st.write("Given the plot below, create personas as you want! The values are normalized wihtin 0 and 1.")
-    st.write("Cluster Products:")
-    st.image('app/artifacts/cluster_id_prod.png', caption='Cluster Products', use_column_width=True)
-    st.write("Cluster Channel:")
-    st.image('app/artifacts/cluster_id_channel.png', caption='Cluster Channel', use_column_width=True)
-    st.write("Cluster Behavior:")
-    st.image('app/artifacts/cluster_id_rfm.png', caption='Cluster Behavior', use_column_width=True)
+    # Create a dropdown to select a cluster
+    selected_cluster = st.selectbox("Select Cluster:", cluster_summary['Cluster'].unique())
 
+    col1, col2, col3 = st.columns(3)
+    cols = [col1, col2, col3]
+    with col1:
+        # List of columns you want to display
+        columns_to_display = ['Preference Wines','Preference Fruits','Preference Meat','Preference Fish','Preference Sweets','Preference Gold',
+]
 
+        for group, row in cluster_summary[cluster_summary['Cluster'] == selected_cluster].iterrows():
+            st.info(f'''
+                **Products**
+                - {columns_to_display[0]}: **{row[columns_to_display[0]]}**
+                - {columns_to_display[1]}: **{row[columns_to_display[1]]}**
+                - {columns_to_display[2]}: **{row[columns_to_display[2]]}**
+            ''')
 
+    with col2:
+        # List of columns you want to display
+        columns_to_display = ['Preference Deals','Preference Web','Preference Catalog','Preference Store']
+
+        for group, row in cluster_summary[cluster_summary['Cluster'] == selected_cluster].iterrows():
+            st.info(f'''
+                **Channel**
+                - {columns_to_display[0]}: **{row[columns_to_display[0]]}**
+                - {columns_to_display[1]}: **{row[columns_to_display[1]]}**
+                - {columns_to_display[2]}: **{row[columns_to_display[2]]}**
+            ''')
+
+    with col3:
+        # List of columns you want to display
+        columns_to_display = ['Recency','Frequency','Amount Spent']
+
+        for group, row in cluster_summary[cluster_summary['Cluster'] == selected_cluster].iterrows():
+            st.info(f'''
+                **Behavior (RFM)**
+                - {columns_to_display[0]}: **{row[columns_to_display[0]]}**
+                - {columns_to_display[1]}: **{row[columns_to_display[1]]}**
+                - {columns_to_display[2]}: **{row[columns_to_display[2]]}**
+            ''')
 def page_3():
 
     st.title("Organize your campaign!")
