@@ -265,10 +265,10 @@ def page_2():
 
     st.subheader('Cluster Interpretation:')
     st.write("Given the plot below, create personas as you want! The values are normalized wihtin 0 and 1.")
-    st.write("Cluster Channel:")
-    st.image('app/artifacts/cluster_id_channel.png', caption='Cluster Channel', use_column_width=True)
     st.write("Cluster Products:")
     st.image('app/artifacts/cluster_id_prod.png', caption='Cluster Products', use_column_width=True)
+    st.write("Cluster Channel:")
+    st.image('app/artifacts/cluster_id_channel.png', caption='Cluster Channel', use_column_width=True)
     st.write("Cluster Behavior:")
     st.image('app/artifacts/cluster_id_rfm.png', caption='Cluster Behavior', use_column_width=True)
 
