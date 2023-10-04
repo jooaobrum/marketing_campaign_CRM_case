@@ -96,6 +96,11 @@ class ClusterModelInference:
                                             self.model_loader_config.bucket_name, 
                                             os.path.join(self.model_loader_config.s3_file_path, self.model_loader_config.model_cluster_filepath.split('/')[-1].split('.')[0] + '.json'),
                                             self.model_loader_config.model_cluster_filepath.split('/')[0])
+                # Download cluster summary
+                utils.download_file_from_s3(self.model_loader_config.s3_client, 
+                                            self.model_loader_config.bucket_name, 
+                                            os.path.join(self.model_loader_config.s3_file_path, 'summary_clusters.csv'),
+                                            self.model_loader_config.model_cluster_filepath.split('/')[0])
                 logging.info("Downloading model from cloud...")
 
             # Read the model to cluster data

@@ -38,6 +38,24 @@ def save_clustering_info(df, categories, cluster_id, image_label):
     heatmap.get_figure().savefig(image_label + ".png", bbox_inches='tight')
     plt.close()
 
+def define_values_category(value):
+    if value < 0.25:
+        return 'Low'
+    
+    elif value > 0.5:
+        return 'High'
+    else:
+        return 'Medium'
+    
+def summary_groups(df, columns):
+    df_summary_all = pd.DataFrame()
+    df_mean = df.groupby(['cluster_id_all'])[columns].mean().reset_index()
+    df_summary_all['Cluster'] = df_mean['cluster_id_all'].values.tolist()
+    for col in columns:
+        df_summary_all[col] = df_mean[col].apply(lambda x: define_values_category(x))
+
+    return df_summary_all
+
 
 
 @dataclass
@@ -125,7 +143,34 @@ class ModelTrainer:
 
             # Merge Clustering
             df['cluster_id_all'] = df['cluster_id_prod'].astype(str) + '_' + df['cluster_id_channel'].astype(str) + '_' + df['cluster_id_rfm'].astype(str)
+            df_scaled['cluster_id_all'] = df['cluster_id_prod'].astype(str) + '_' + df['cluster_id_channel'].astype(str) + '_' + df['cluster_id_rfm'].astype(str)
+
             logging.info("All Clusters merged...")
+
+            column_name_mapping = {
+                                    "percentage_spent_wines": "Preference Wines",
+                                    "percentage_spent_fruits": "Preference Fruits",
+                                    "percentage_spent_meat": "Preference Meat",
+                                    "percentage_spent_fish": "Preference Fish",
+                                    "percentage_spent_sweet": "Preference Sweets",
+                                    "percentage_spent_gold": "Preference Gold",
+                                    "percentage_type_deals": "Preference Deals",
+                                    "percentage_type_web": "Preference Web",
+                                    "percentage_type_catalog": "Preference Catalog",
+                                    "percentage_type_store": "Preference Store",
+                                    "recency": "Recency",
+                                    "total_purchases": "Frequency",
+                                    "amount_spent": "Amount Spent"
+                                }
+            # Summary all clusters into one dataframe
+            summary_all = pd.merge(summary_groups(df, categories_prod), summary_groups(df, categories_channel), on = 'Cluster', how = 'left')
+            summary_all = pd.merge(summary_all, summary_groups(df_scaled, categories_rfm))
+            summary_all = summary_all.rename(columns=column_name_mapping)
+            summary_all.to_csv(os.path.join(self.model_trainer_config.cluster_infos_filepath, 'summary_clusters.csv'))
+            utils.upload_file_to_s3(self.model_trainer_config.s3_client,
+                                    self.model_trainer_config.bucket_name,
+                                    os.path.join(self.model_trainer_config.cluster_infos_filepath, 'summary_clusters.csv'),
+                                    os.path.join(self.model_trainer_config.s3_file_path, 'models/summary_clusters.csv'))
 
             # Training a random forest to learn the clusters
             
