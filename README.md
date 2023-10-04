@@ -66,7 +66,11 @@ ince we have all exploration phases validated, let's build a data produt using S
 - Building Transformation Pipelines
 - Building Model Pipelines
 - End-to-end Application with Streamlit 
-- Deployment with Docker on EC2 or Local Machine 
+- Deployment with Docker on EC2 or Local Machine
+
+### Project Architecture
+![alt text](https://github.com/jooaobrum/marketing_campaign_CRM_case/blob/main/crm-deployment.png?raw=true)
+
 
 
 ### Application Running on Streamlit
