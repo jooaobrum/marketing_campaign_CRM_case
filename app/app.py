@@ -169,6 +169,10 @@ def page_1():
     df1['percentage_spent_sweet'] = df1['mntsweetproducts'] / df1['amount_spent']
     df1['percentage_spent_gold'] = df1['mntgoldprods'] / df1['amount_spent']
 
+    # Check if the folder exists
+    if not os.path.exists('app/artifacts'):
+        # If it doesn't exist, create it
+        os.makedirs('app/artifacts')
     df1.to_csv("app/artifacts/df_customers.csv")
 
     # Sidebar filters for data analysis
