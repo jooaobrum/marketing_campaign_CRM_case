@@ -169,6 +169,7 @@ def page_1():
     df1['percentage_spent_sweet'] = df1['mntsweetproducts'] / df1['amount_spent']
     df1['percentage_spent_gold'] = df1['mntgoldprods'] / df1['amount_spent']
 
+    df1.to_csv("app/artifacts/df_customers.csv")
 
     # Sidebar filters for data analysis
     st.sidebar.subheader('Data Filters')
@@ -285,7 +286,7 @@ def page_2():
                 most_recent_clustering['object'] = obj
                 most_recent_clustering['timestamp'] = obj_timestamp
 
-    
+    df1 = pd.read_csv('app/artifacts/df_customers.csv')
     
     df_cluster = read_file_from_s3(s3_client, bucket_name, most_recent_clustering['object']['Key'])
     df_cluster = df_cluster.iloc[:, 1:]
@@ -311,34 +312,62 @@ def page_2():
 
     df_filt = df[df['Main Cluster'].isin(selected_clusters)]
 
-       #st.write("Legend: Products_Channel_Behavior")
-    #selected_main_cluster = st.sidebar.selectbox('Select Main Cluster', ['All'] + df['Main Cluster'].unique().tolist())
+    #st.write(df_filt)
+    st.write("Number of Target Customers:", len(df_filt))
 
-    #selected_sec_cluster = st.sidebar.selectbox('Select Alternative Cluster 1', ['All'] + df['Alternative Cluster 1'].unique().tolist())
-
-    #selected_third_cluster = st.sidebar.selectbox('Select Alternative Cluster 2', ['All'] + df['Alternative Cluster 2'].unique().tolist())
-
-    st.write("Select Probability to Accept a Campaign:")
-    # Filter by Prob threshold
-    threshold = st.slider('Threshold', min_value=0.0, max_value=100.0, value=0.0, step=5.0)
-
-    # Apply filters to the data
-    #if selected_main_cluster != 'All':
-    #    filtered_data = df[df['Main Cluster'] == selected_main_cluster]
-    #else:
-    #    filtered_data = df.copy() 
-
-    #if selected_sec_cluster != 'All':
-    #    filtered_data = filtered_data[filtered_data['Alternative Cluster 1'] == selected_sec_cluster]
-
-    #if selected_third_cluster != 'All':
-    #    filtered_data = filtered_data[filtered_data['Alternative Cluster 2'] == selected_third_cluster]
-
-    # Apply Prob threshold filter
-    df_filt = df_filt[df_filt['Prob. to Accept (%)'] > threshold]
 
     st.write(df_filt)
-    st.write("Number of Target Customers:", len(df_filt))
+
+    st.subheader("Estimation of Campaign Gains:")
+    budget = st.number_input("Total Budget ($):", min_value=0.01)
+    cac = st.number_input("Cost per Client ($):", min_value=0.01)
+    time_discount = st.number_input("Period of the campaign (months):", min_value=1)
+    coupon_discount = st.number_input("Discount (%):", min_value=0.01)
+    
+    
+    campaign_size = int(budget // cac)
+
+
+    recall_metric_experiments = 0.7
+
+    # Apply Prob threshold filter
+    df_filt = df_filt.iloc[:campaign_size]
+    selected_customers = df_filt['ID'].values.tolist()
+
+    total_cost = len(selected_customers) * cac
+    total_gain = (df1[df1['id'].isin(selected_customers)]['amount_spent_month'].sum() * recall_metric_experiments * (1-coupon_discount/100)) * time_discount
+    roi = 100*(total_gain-total_cost) / total_cost
+
+    col1, col2, col3 = st.columns(3)
+    cols = [col1, col2, col3]
+
+    st.write(df_filt)
+
+    if budget == 0.01:
+        with col1:
+            st.metric("Estimated Total Cost", f"${0:.2f}")
+
+        with col2:
+            st.metric("Estimated Total Gain", f"${0:.2f}")
+
+        with col3:
+            st.metric("Estimated ROI", f"{0:.2f}%")
+    else:
+        with col1:
+            st.metric("Estimated Total Cost", f"${total_cost:.2f}")
+
+        with col2:
+            st.metric("Estimated Total Gain", f"${total_gain:.2f}")
+
+        with col3:
+            st.metric("Estimated ROI", f"{roi:.2f}%")
+
+
+
+    #st.write(df_filt)
+    st.write("Number of Target Customers after Budget Restriction:", len(selected_customers))
+
+
 
     # Create a button to download the filtered DataFrame as a CSV file
     csv_data = df_filt.to_csv(index=False)
